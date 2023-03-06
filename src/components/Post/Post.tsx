@@ -90,7 +90,6 @@ export default function Post({ data, mode }: IPostProps) {
                 >
                     {user?._id === postData?.author._id && (
                         <Button
-                            zIndex={999}
                             onClick={(e) => {
                                 e?.stopPropagation();
                                 axiosMain(`/posts/delete/${postData?._id}`, {

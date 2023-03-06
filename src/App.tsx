@@ -5,9 +5,11 @@ import NoPage from "./pages/404/NoPage";
 import AddPost from "./pages/AddPost/AddPost";
 import MainLayout from "./pages/Layout/MainLayout";
 import Login from "./pages/Login/Login";
+import Messages from "./pages/Messages/Messages";
 import Posts from "./pages/Posts/Posts";
 import Profile from "./pages/Profile/Profile";
 import Registration from "./pages/Registration/Registration";
+import Users from "./pages/Users/Users";
 import { fetchAuth, fetchLogin } from "./redux/slices/userSlice/userSlice";
 import { useAppDispatch, useAppSelector } from "./redux/store";
 
@@ -35,6 +37,8 @@ const App = () => {
                     ></Route>
                     <Route path="/profile/" element={<Profile />}></Route>
                     <Route path="/posts/add" element={<AddPost />}></Route>
+                    <Route path="/messages" element={<Messages />}></Route>
+                    <Route path="/users/*" element={<Users />}></Route>
                 </Route>
                 <Route path="/login" element={<Login />}></Route>
                 <Route path="/registration" element={<Registration />}></Route>

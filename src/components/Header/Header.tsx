@@ -1,11 +1,8 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import {
     Box,
     Flex,
     Avatar,
-    HStack,
-    Link,
-    IconButton,
     Button,
     Menu,
     MenuButton,
@@ -15,21 +12,20 @@ import {
     useDisclosure,
     useColorModeValue,
     Stack,
-    Container,
     useColorMode,
+    Center,
+    Input,
+    HStack,
+    Text,
 } from "@chakra-ui/react";
-import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
-import { useNavigate } from "react-router-dom";
+import { HiOutlineSearch } from "react-icons/hi";
+import { removeUserData } from "../../redux/slices/userSlice/userSlice";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
+import { Link } from "react-router-dom";
 
-const Links = [
-    ["Новости", "/news"],
-    ["Сообщения", "/messages"],
-    ["Настройки", "/settings"],
-];
-
-const NavLink = ({ url, children }: { url: string; children: ReactNode }) => (
-    <Link
+const NavLink = ({ children }: { children: ReactNode }) => (
+    <Text
         px={2}
         py={1}
         rounded={"md"}
@@ -37,85 +33,134 @@ const NavLink = ({ url, children }: { url: string; children: ReactNode }) => (
             textDecoration: "none",
             bg: useColorModeValue("gray.200", "gray.700"),
         }}
-        href={url}
-    >
-        {children}
-    </Link>
+    ></Text>
 );
 
 export default function Header() {
     const { colorMode, toggleColorMode } = useColorMode();
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const [searchValue, setSearchValue] = useState("");
+
+    const dispatch = useAppDispatch();
+    const user = useAppSelector((state) => state.user);
+
     return (
         <>
-            <Box bg={useColorModeValue("gray.100", "gray.900")} px={4}>
-                <Container maxW={"container.xl"}>
-                    <Flex
-                        h={16}
-                        alignItems={"center"}
-                        justifyContent={"space-between"}
-                    >
-                        <Button onClick={toggleColorMode} size="sm">
-                            {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
-                        </Button>
-                        <IconButton
-                            size={"md"}
-                            icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
-                            aria-label={"Open Menu"}
-                            display={{ md: "none" }}
-                            onClick={isOpen ? onClose : onOpen}
-                        />
-                        <HStack spacing={8} alignItems={"center"}>
-                            <HStack
-                                as={"nav"}
-                                spacing={4}
-                                display={{ base: "none", md: "flex" }}
-                            >
-                                {Links.map((link) => (
-                                    <NavLink url={link[1]} key={link[1]}>
-                                        {link[0]}
-                                    </NavLink>
-                                ))}
-                            </HStack>
-                        </HStack>
-                        <Flex alignItems={"center"}>
-                            <Menu>
-                                <MenuButton
-                                    as={Button}
-                                    rounded={"full"}
-                                    variant={"link"}
-                                    cursor={"pointer"}
-                                    minW={0}
-                                >
-                                    <Avatar
-                                        size={"sm"}
-                                        src={
-                                            "https://images.unsplash.com/photo-1493666438817-866a91353ca9?ixlib=rb-0.3.5&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&s=b616b2c5b373a80ffc9636ba24f7a4a9"
-                                        }
-                                    />
-                                </MenuButton>
-                                <MenuList>
-                                    <MenuItem>Профиль</MenuItem>
-                                    <MenuItem>Создать пост</MenuItem>
-                                    <MenuDivider />
-                                    <MenuItem>Link 3</MenuItem>
-                                </MenuList>
-                            </Menu>
-                        </Flex>
+            <Box
+                position="fixed"
+                top="0"
+                left="0"
+                right="0"
+                zIndex={100}
+                bg={useColorModeValue("gray.100", "gray.900")}
+                px={4}
+            >
+                <Flex
+                    h={16}
+                    alignItems={"center"}
+                    justifyContent={"space-between"}
+                    paddingLeft={"60"}
+                >
+                    <Flex>
+                        <Input
+                            value={searchValue}
+                            onChange={(e) => {
+                                setSearchValue(e.target.value);
+                            }}
+                            placeholder="Найти"
+                        ></Input>
+                        <Link to={`/users/${searchValue}`}>
+                            <Button ml={"1rem"}>
+                                <HiOutlineSearch />
+                            </Button>
+                        </Link>
                     </Flex>
 
-                    {isOpen ? (
-                        <Box pb={4} display={{ md: "none" }}>
-                            <Stack as={"nav"} spacing={4}>
-                                {Links.map((link) => (
-                                    <NavLink url={link[1]} key={link[1]}>
-                                        {link[0]}
-                                    </NavLink>
-                                ))}
-                            </Stack>
-                        </Box>
-                    ) : null}
-                </Container>
+                    <Flex
+                        alignItems={"center"}
+                        position="relative"
+                        zIndex={999}
+                    >
+                        <Stack direction={"row"} spacing={7}>
+                            <Button onClick={toggleColorMode}>
+                                {colorMode === "light" ? (
+                                    <MoonIcon />
+                                ) : (
+                                    <SunIcon />
+                                )}
+                            </Button>
+
+                            {user.data ? (
+                                <>
+                                    <Menu>
+                                        <MenuButton
+                                            as={Button}
+                                            rounded={"full"}
+                                            variant={"link"}
+                                            cursor={"pointer"}
+                                            minW={0}
+                                        >
+                                            <Avatar
+                                                size={"sm"}
+                                                src={user.data?.avatarURL}
+                                            />
+                                        </MenuButton>
+                                        <MenuList alignItems={"center"}>
+                                            <br />
+                                            <Center>
+                                                <Avatar
+                                                    size={"2xl"}
+                                                    src={user.data?.avatarURL}
+                                                />
+                                            </Center>
+                                            <br />
+                                            <Center>
+                                                <p></p>
+                                            </Center>
+                                            <br />
+                                            <MenuDivider />
+                                            <Link to="/profile">
+                                                <MenuItem>Профиль</MenuItem>
+                                            </Link>
+                                            <MenuItem
+                                                onClick={() => {
+                                                    dispatch(removeUserData());
+                                                    localStorage.removeItem(
+                                                        "token"
+                                                    );
+                                                }}
+                                            >
+                                                Выйти
+                                            </MenuItem>
+                                        </MenuList>
+                                    </Menu>
+                                </>
+                            ) : (
+                                <>
+                                    <HStack>
+                                        <Link
+                                            style={{ textDecoration: "none" }}
+                                            to="/login"
+                                        >
+                                            <Button colorScheme={"blue"}>
+                                                Войти
+                                            </Button>
+                                        </Link>
+
+                                        <Link
+                                            style={{ textDecoration: "none" }}
+                                            to="/registration"
+                                        >
+                                            <Button colorScheme={"blue"}>
+                                                Зарегестрироваться
+                                            </Button>
+                                        </Link>
+                                    </HStack>
+                                </>
+                            )}
+                        </Stack>
+                    </Flex>
+                </Flex>
             </Box>
         </>
     );
